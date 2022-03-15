@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, OnModuleInit, Param } from '@nestjs/common';
+import { Controller, Get, Inject, OnModuleInit, Param, UseGuards } from '@nestjs/common';
 import {
   ClientGrpc,
   GrpcMethod,
@@ -8,6 +8,7 @@ import { Observable, ReplaySubject, Subject } from 'rxjs';
 import { toArray } from 'rxjs/operators';
 import { HeroById } from './interfaces/hero-by-id.interface';
 import { Hero } from './interfaces/hero.interface';
+import { AuthGuard } from '@nestjs/passport';
 
 interface HeroService {
   findOne(data: HeroById): Observable<Hero>;
@@ -41,6 +42,12 @@ export class HeroController implements OnModuleInit {
 
   @Get(':id')
   getById(@Param('id') id: string): Observable<Hero> {
+    return this.heroService.findOne({ id: +id });
+  }
+
+  @Get('/guard/:id')
+  @UseGuards(AuthGuard('bearer'))
+  guardGetById(@Param('id') id: string): Observable<Hero> {
     return this.heroService.findOne({ id: +id });
   }
 
